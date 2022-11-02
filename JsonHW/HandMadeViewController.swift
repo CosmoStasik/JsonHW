@@ -11,6 +11,19 @@ import UIKit
 struct User1: Codable {
     let comments: [Comment1]
     let total, skip, limit: Int
+    enum CodingKeys: String, CodingKey {
+          case comments
+          case total
+          case skip
+          case limit
+      }
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.comments = try container.decode([Comment1].self, forKey: .comments)
+        self.total = try container.decode(Int.self, forKey: .total)
+        self.skip = try container.decode(Int.self, forKey: .skip)
+        self.limit = try container.decode(Int.self, forKey: .limit)
+    }
 }
 
 // MARK: - Comment
@@ -44,7 +57,14 @@ class HandMadeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        guard let mainUrl = Bundle.main.url(forResource: "JSON", withExtension: "json") else {return}
+                do {
+                    let data = try Data(contentsOf: mainUrl)
+                    let decoder = JSONDecoder()
+                    let finalData = try decoder.decode(User1.self, from: data)
+                    print(finalData)
+                } catch {
+                    print(error)
+                }
+            }
     }
-}
